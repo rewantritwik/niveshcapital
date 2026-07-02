@@ -25,15 +25,15 @@ app.use(cors({
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002',
-    'http://localhost:3003',
-    'http://localhost:3004'
+    'https://niveshcapital.vercel.app',
+    'https://niveshcapital-dashboard.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'] 
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true }));     
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use((req, res, next) => {
   Object.defineProperty(req, 'query', {
@@ -44,7 +44,7 @@ app.use((req, res, next) => {
   });
   next();
 });
-app.use(mongoSanitize());                            
+app.use(mongoSanitize());
 
 
 app.use('/', authRoute);
@@ -72,8 +72,8 @@ async function connectDB(uri, isFallback = false) {
     await seedStocks();
     await seedDemoUser();
     startPriceSimulation();
-    await resetDailyPrices();   
-    startIntradayRecenter();   
+    await resetDailyPrices();
+    startIntradayRecenter();
 
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (err) {
