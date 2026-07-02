@@ -2,14 +2,17 @@ import React, { useState } from 'react'
 import { X, Mail, Lock, User, ArrowRight } from 'lucide-react'
 import axios from 'axios'
 
+const API_URL = 'https://niveshcapital-backend.onrender.com'
+const DASHBOARD_URL = 'https://niveshcapital-dashboard.vercel.app'
+
 export default function AuthModal({ type, onClose, prefillEmail, prefillPassword }) {
-  const [mode, setMode] = useState(type || 'signin') 
+  const [mode, setMode] = useState(type || 'signin')
   const [email, setEmail] = useState(prefillEmail || '')
   const [password, setPassword] = useState(prefillPassword || '')
   const [fullName, setFullName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  
+
   const [errors, setErrors] = useState({
     fullName: '',
     email: '',
@@ -50,7 +53,6 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
 
   const strength = getPasswordStrength(password)
 
-  
   const handleUsernameChange = (e) => {
     const val = e.target.value
     setFullName(val)
@@ -112,7 +114,7 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
 
     if (mode === 'signup') {
       if (!validateUsername(fullName.trim())) {
-        newErrors.fullName = 
+        newErrors.fullName =
           "Username must be 3-20 characters, letters and numbers only"
       }
       if (!validateEmail(email.trim())) {
@@ -146,73 +148,74 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
     setLoading(true)
 
     if (mode === 'signup') {
-      axios.post('http://localhost:3005/signup', {
+      axios.post(`${API_URL}/signup`, {
         username: fullName.trim(),
         email: email.trim(),
         password
       })
-      .then(res => {
-        setSignupEmail(email.trim())
-        if (res.data.accessToken) {
-          localStorage.setItem('token', res.data.accessToken)
-          localStorage.setItem('user', JSON.stringify({
-            id: res.data.id,
-            name: res.data.name,
-            email: res.data.email
-          }))
-          onClose()
-          const redirectUrl = `http://localhost:3002/?id=${res.data.id}&name=${encodeURIComponent(res.data.name)}&email=${encodeURIComponent(res.data.email)}&token=${res.data.accessToken}`;
-          window.location.href = redirectUrl;
-        } else {
-          setMode('signin')
-        }
-      })
-      .catch(err => {
-        setError(err.response?.data?.message || err.message || 'Signup failed')
-        setLoading(false)
-      })
+        .then(res => {
+          setSignupEmail(email.trim())
+          const token = res.data.token || res.data.accessToken
+          if (token) {
+            localStorage.setItem('token', token)
+            localStorage.setItem('user', JSON.stringify({
+              id: res.data.id,
+              name: res.data.name,
+              email: res.data.email
+            }))
+            onClose()
+            const redirectUrl = `${DASHBOARD_URL}/?id=${res.data.id}&name=${encodeURIComponent(res.data.name)}&email=${encodeURIComponent(res.data.email)}&token=${token}`
+            window.location.href = redirectUrl
+          } else {
+            setSignupSuccess(true)
+            setLoading(false)
+          }
+        })
+        .catch(err => {
+          setError(err.response?.data?.message || err.message || 'Signup failed')
+          setLoading(false)
+        })
     } else if (mode === 'signin') {
-      axios.post('http://localhost:3005/login', {
+      axios.post(`${API_URL}/login`, {
         email: email.trim(),
         password
       })
-      .then(res => {
-        if (res.data.accessToken) {
-          localStorage.setItem('token', res.data.accessToken)
-          localStorage.setItem('user', JSON.stringify({
-            id: res.data.id,
-            name: res.data.name,
-            email: res.data.email
-          }))
-          onClose()
-          const redirectUrl = `http://localhost:3002/?id=${res.data.id}&name=${encodeURIComponent(res.data.name)}&email=${encodeURIComponent(res.data.email)}&token=${res.data.accessToken}`;
-          window.location.href = redirectUrl;
-        }
-      })
-      .catch(err => {
-        const msg = err.response?.data?.message || 'Login failed'
-        const resendAvailable = err.response?.data?.resendAvailable
-        
-        setError(msg)
-        
-        if (resendAvailable) {
-          setShowResendButton(true)
-          setUnverifiedEmail(email.trim())
-        }
-        setLoading(false)
-      })
+        .then(res => {
+          const token = res.data.token || res.data.accessToken
+          if (token) {
+            localStorage.setItem('token', token)
+            localStorage.setItem('user', JSON.stringify({
+              id: res.data.id,
+              name: res.data.name,
+              email: res.data.email
+            }))
+            onClose()
+            const redirectUrl = `${DASHBOARD_URL}/?id=${res.data.id}&name=${encodeURIComponent(res.data.name)}&email=${encodeURIComponent(res.data.email)}&token=${token}`
+            window.location.href = redirectUrl
+          }
+        })
+        .catch(err => {
+          const msg = err.response?.data?.message || 'Login failed'
+          const resendAvailable = err.response?.data?.resendAvailable
+          setError(msg)
+          if (resendAvailable) {
+            setShowResendButton(true)
+            setUnverifiedEmail(email.trim())
+          }
+          setLoading(false)
+        })
     } else if (mode === 'forgot') {
-      axios.post('http://localhost:3005/forgot-password', {
+      axios.post(`${API_URL}/forgot-password`, {
         email: email.trim()
       })
-      .then(() => {
-        setMode('forgot-success')
-        setLoading(false)
-      })
-      .catch(err => {
-        setError(err.response?.data?.message || err.message || 'Reset request failed')
-        setLoading(false)
-      })
+        .then(() => {
+          setMode('forgot-success')
+          setLoading(false)
+        })
+        .catch(err => {
+          setError(err.response?.data?.message || err.message || 'Reset request failed')
+          setLoading(false)
+        })
     }
   }
 
@@ -220,7 +223,7 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
     setResendLoading(true)
     setResendMsg('')
     try {
-      const res = await axios.post('http://localhost:3005/resend-verification', {
+      const res = await axios.post(`${API_URL}/resend-verification`, {
         email: signupEmail
       })
       setResendMsg(res.data.message || 'Verification email sent!')
@@ -235,7 +238,7 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
     setResendLoading(true)
     setResendMsg('')
     try {
-      const res = await axios.post('http://localhost:3005/resend-verification', {
+      const res = await axios.post(`${API_URL}/resend-verification`, {
         email: unverifiedEmail
       })
       setResendMsg(res.data.message || 'Verification email sent!')
@@ -246,7 +249,6 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
     }
   }
 
-  
   if (signupSuccess) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-md">
@@ -257,35 +259,22 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
           >
             <X size={20} />
           </button>
-          
           <div className="text-6xl mb-4">✅</div>
-          
-          <h3 className="text-2xl font-bold text-white mb-2">
-            Account Created!
-          </h3>
-          
+          <h3 className="text-2xl font-bold text-white mb-2">Account Created!</h3>
           <p className="text-gray-400 text-sm leading-relaxed mb-6">
             We sent a verification email to{' '}
             <span className="text-emerald-400 font-semibold">
               your email address
             </span>
-            <br/>
+            <br />
             Click the link in the email to activate your account
             and access your dashboard.
           </p>
-
           <div className="bg-navy-950 border border-gray-800 rounded-xl p-4 mb-6 text-left space-y-2">
-            <p className="text-gray-400 text-xs">
-              📧 Check your spam folder if you don't see it
-            </p>
-            <p className="text-gray-400 text-xs">
-              ⏱ Link expires in 24 hours
-            </p>
-            <p className="text-gray-400 text-xs">
-              🔒 Only verified accounts can access the platform
-            </p>
+            <p className="text-gray-400 text-xs">📧 Check your spam folder if you don't see it</p>
+            <p className="text-gray-400 text-xs">⏱ Link expires in 24 hours</p>
+            <p className="text-gray-400 text-xs">🔒 Only verified accounts can access the platform</p>
           </div>
-
           <button
             onClick={handleResendVerification}
             disabled={resendLoading}
@@ -293,11 +282,9 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
           >
             {resendLoading ? 'Sending...' : 'Resend Verification Email'}
           </button>
-
           {resendMsg && (
             <p className="text-emerald-400 text-xs mb-3">{resendMsg}</p>
           )}
-
           <button
             onClick={() => {
               setSignupSuccess(false)
@@ -315,7 +302,6 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
     )
   }
 
-  
   if (mode === 'forgot-success') {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-md">
@@ -350,11 +336,9 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-md transition-all duration-300">
       <div className="relative w-full max-w-md bg-navy-900 border border-gray-800 rounded-3xl p-8 shadow-2xl overflow-hidden animate-fade-in-up">
-        {}
         <div className="absolute -top-12 -left-12 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
         <div className="absolute -bottom-12 -right-12 w-40 h-40 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
 
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-6 right-6 p-1.5 hover:bg-gray-800/80 text-gray-400 hover:text-white rounded-lg transition-colors"
@@ -362,16 +346,15 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
           <X size={20} />
         </button>
 
-        {/* Header */}
         <div className="mb-6 text-left">
           <h3 className="text-2xl font-heading font-extrabold text-white">
             {mode === 'signin' ? 'Welcome Back' : mode === 'signup' ? 'Create Account' : 'Reset Password'}
           </h3>
           <p className="text-gray-400 text-sm mt-1">
-            {mode === 'signin' 
-              ? 'Sign in to access your custom portfolio metrics.' 
-              : mode === 'signup' 
-                ? 'Join NiveshCapital to simulate, learn, and grow.' 
+            {mode === 'signin'
+              ? 'Sign in to access your custom portfolio metrics.'
+              : mode === 'signup'
+                ? 'Join NiveshCapital to simulate, learn, and grow.'
                 : 'Enter your email to request a reset link.'}
           </p>
         </div>
@@ -382,7 +365,6 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 text-left">
           {mode === 'signup' && (
             <div>
@@ -445,36 +427,30 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
               {errors.password && (
                 <p className="text-rose-400 text-xs mt-1 font-medium">{errors.password}</p>
               )}
-
-              {/* Password Strength Indicator */}
               {mode === 'signup' && (
                 <div className="mt-2 space-y-1">
                   <div className="flex gap-1">
-                    <div className={`h-1 flex-1 rounded-full transition-all ${
-                      strength === 'weak' || strength === 'medium' || strength === 'strong'
-                        ? strength === 'weak' ? 'bg-red-500' 
-                        : strength === 'medium' ? 'bg-yellow-500' 
-                        : 'bg-emerald-500'
+                    <div className={`h-1 flex-1 rounded-full transition-all ${strength === 'weak' || strength === 'medium' || strength === 'strong'
+                        ? strength === 'weak' ? 'bg-red-500'
+                          : strength === 'medium' ? 'bg-yellow-500'
+                            : 'bg-emerald-500'
                         : 'bg-gray-700'
-                    }`}></div>
-                    <div className={`h-1 flex-1 rounded-full transition-all ${
-                      strength === 'medium' || strength === 'strong'
+                      }`}></div>
+                    <div className={`h-1 flex-1 rounded-full transition-all ${strength === 'medium' || strength === 'strong'
                         ? strength === 'medium' ? 'bg-yellow-500' : 'bg-emerald-500'
                         : 'bg-gray-700'
-                    }`}></div>
-                    <div className={`h-1 flex-1 rounded-full transition-all ${
-                      strength === 'strong' ? 'bg-emerald-500' : 'bg-gray-700'
-                    }`}></div>
+                      }`}></div>
+                    <div className={`h-1 flex-1 rounded-full transition-all ${strength === 'strong' ? 'bg-emerald-500' : 'bg-gray-700'
+                      }`}></div>
                   </div>
                   {strength && (
-                    <p className={`text-xs font-medium ${
-                      strength === 'weak' ? 'text-red-400'
-                      : strength === 'medium' ? 'text-yellow-400'
-                      : 'text-emerald-400'
-                    }`}>
+                    <p className={`text-xs font-medium ${strength === 'weak' ? 'text-red-400'
+                        : strength === 'medium' ? 'text-yellow-400'
+                          : 'text-emerald-400'
+                      }`}>
                       {strength === 'weak' ? '⚠ Weak password'
-                      : strength === 'medium' ? '● Medium strength'
-                      : '✓ Strong password'}
+                        : strength === 'medium' ? '● Medium strength'
+                          : '✓ Strong password'}
                     </p>
                   )}
                 </div>
