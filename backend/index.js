@@ -62,18 +62,13 @@ app.get('/createdemo', async (req, res) => {
     const PositionModel = require('./model/PositionModel')
     const OrderModel = require('./model/OrderModel')
 
-    const existing = await UserModel.findOne({ 
-      email: 'demo@niveshcapital.com' 
-    })
-    if (existing) {
-      return res.json({ 
-        message: 'Demo account already exists!',
-        credentials: {
-          email: 'demo@niveshcapital.com',
-          password: 'Demo@1234'
-        }
-      })
-    }
+    // Force clear existing demo entries to re-create clean state
+    await UserModel.deleteMany({ email: 'demo@niveshcapital.com' })
+    await UserModel.deleteMany({ userId: 'DEMO001' })
+    await FundsModel.deleteMany({ userId: 'DEMO001' })
+    await HoldingModel.deleteMany({ userId: 'DEMO001' })
+    await PositionModel.deleteMany({ userId: 'DEMO001' })
+    await OrderModel.deleteMany({ userId: 'DEMO001' })
 
     const hashedPassword = await bcrypt.hash('Demo@1234', 12)
     
