@@ -25,7 +25,7 @@ app.use(cors({
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002',
-    'niveshcapital.vercel.app',
+    'https://niveshcapital.vercel.app',          // ← fixed
     'https://niveshcapital-dashboard.vercel.app'
   ],
   credentials: true,
