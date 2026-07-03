@@ -3,22 +3,19 @@
 A full-stack, Zerodha-inspired educational stock trading simulator built using the MERN stack (MongoDB, Express, React, Node.js). 
 
 ## Live Demo
-- **Landing Page**: http://localhost:3001
-- **Trading Dashboard**: http://localhost:3002
-- **Backend API**: http://localhost:3005
+- Landing Page: https://niveshcapital.vercel.app
+- Dashboard: https://niveshcapital-dashboard.vercel.app
+- Backend API: https://niveshcapital-backend.onrender.com
+- Try Demo: click "Try Demo" on landing page
 
----
+
 
 ## Directory Structure
-```text
+
 niveshcapital/
 ├── backend/       # Node.js + Express REST API & Simulation Engine
 ├── Dashboard/     # React.js Professional Trading Portal
 └── frontend/      # React.js Premium Brand Landing Page
-```
-
----
-
 ## Key Features
 - **Real-Time Price Simulation**: Custom server-side engine running every 30 seconds simulating realistic market ticks.
 - **Mock Trading**: Buy and sell major NSE equities with a virtual ₹1,00,000 capital.
@@ -27,7 +24,6 @@ niveshcapital/
 - **Multi-User Isolation**: Complete client state and database security ensuring users only access their own orders and assets.
 - **Clean Responsive UI**: Modern aesthetics featuring responsive dashboard grids, horizontal table scrolls, and micro-interactions.
 
----
 
 ## Technical Architecture
 
@@ -38,7 +34,7 @@ niveshcapital/
 
 ### Database Schema Map
 | Collection | Description |
-| :--- | :--- |
+
 | **users** | Contains user credentials, verification tokens, and user ID metadata. |
 | **stocks** | Stores NIFTY 50, SENSEX, and 15+ NSE equities with their active simulated prices. |
 | **orders** | Logs complete transactional records (Buy/Sell) with timestamps. |
