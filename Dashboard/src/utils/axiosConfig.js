@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://niveshcapital-backend.onrender.com';
+const LANDING_URL = process.env.REACT_APP_LANDING_URL || 'https://niveshcapital.vercel.app';
 
 axios.interceptors.request.use(
   (config) => {
@@ -24,7 +26,7 @@ axios.interceptors.response.use(
       try {
         
         const res = await axios.post(
-          'http://localhost:3005/refresh-token',
+          '/refresh-token',
           {},
           { withCredentials: true }
         )
@@ -40,7 +42,7 @@ axios.interceptors.response.use(
         
         localStorage.removeItem('token')
         localStorage.removeItem('user')
-        window.location.href = 'http://localhost:3001'
+        window.location.href = LANDING_URL
         return Promise.reject(refreshError)
       }
     }

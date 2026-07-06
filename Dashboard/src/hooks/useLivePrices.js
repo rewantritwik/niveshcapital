@@ -11,7 +11,7 @@ export default function useLivePrices(symbols = []) {
     const fetchPrices = () => {
       const symbolsParam = symbols.join(",");
       axios
-        .get(`http://localhost:3005/stockPrices?symbols=${symbolsParam}`)
+        .get(`/stockPrices?symbols=${symbolsParam}`)
         .then((res) => {
           setPrices(res.data);
         })

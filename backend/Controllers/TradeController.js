@@ -415,30 +415,56 @@ module.exports.getPortfolioSummary = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized. Please log in." });
     }
 
-    
-    const holdings = await HoldingModel.find({ userId, qty: { $gt: 0 } });
+    // Fetch holdings, funds, and order count in parallel (single DB round-trip each)
+    const [holdings, fundsDoc, ordersCount] = await Promise.all([
+      HoldingModel.find({ userId, qty: { $gt: 0 } }),
+      initFunds(userId),
+      OrderModel.countDocuments({ userId })
+    ]);
+
+    // Fetch live prices for held stocks
     const names = holdings.map(h => h.name);
-    const stocks = await StockModel.find({ symbol: { $in: names } });
+    const stocks = names.length > 0
+      ? await StockModel.find({ symbol: { $in: names } })
+      : [];
     const pricesMap = {};
     stocks.forEach(s => { pricesMap[s.symbol] = s.currentPrice; });
+
+    // Enrich holdings with live prices
+    let unrealizedPnL = 0;
+    let currentPortfolioValue = 0;
 
     const enrichedHoldings = holdings.map(h => {
       const livePrice = pricesMap[h.name] || h.avg;
       const currentValue = parseFloat((livePrice * h.qty).toFixed(2));
-      return {
-        name: h.name,
-        qty: h.qty,
-        avg: h.avg,
-        livePrice,
-        currentValue,
-        pnl: parseFloat((currentValue - (h.avg * h.qty)).toFixed(2))
-      };
+      const investedValue = h.avg * h.qty;
+      const pnl = parseFloat((currentValue - investedValue).toFixed(2));
+
+      unrealizedPnL += (livePrice - h.avg) * h.qty;
+      currentPortfolioValue += livePrice * h.qty;
+
+      return { name: h.name, qty: h.qty, avg: h.avg, livePrice, currentValue, pnl };
     });
 
-    const [fundsResult, ordersCount] = await Promise.all([
-      getFundsData(userId),
-      OrderModel.countDocuments({ userId })
-    ]);
+    unrealizedPnL = parseFloat(unrealizedPnL.toFixed(2));
+    currentPortfolioValue = parseFloat(currentPortfolioValue.toFixed(2));
+    const totalPnL = parseFloat((fundsDoc.realizedPnL + unrealizedPnL).toFixed(2));
+
+    // Build funds result inline (no second getFundsData call)
+    const fundsResult = {
+      available: fundsDoc.available,
+      openingBalance: fundsDoc.openingBalance,
+      totalInvested: fundsDoc.totalInvested,
+      realizedPnL: fundsDoc.realizedPnL,
+      totalPayin: fundsDoc.totalPayin || 0,
+      totalPayout: fundsDoc.totalPayout || 0,
+      unrealizedPnL,
+      currentPortfolioValue,
+      totalPnL,
+      portfolioReturn: fundsDoc.openingBalance > 0
+        ? parseFloat(((totalPnL / fundsDoc.openingBalance) * 100).toFixed(2))
+        : 0,
+    };
 
     const topHoldings = enrichedHoldings
       .sort((a, b) => b.currentValue - a.currentValue)

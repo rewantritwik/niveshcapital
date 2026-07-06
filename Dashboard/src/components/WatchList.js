@@ -1,18 +1,12 @@
 
-import React, { useState, useEffect, useContext } from "react";
-import axios from "axios";
+import React, { useState, useContext } from "react";
 import GeneralContext from "./GeneralContext";
 import { Tooltip, Grow } from "@mui/material";
 import {
-  BarChartOutlined,
   KeyboardArrowDown,
   KeyboardArrowUp,
-  MoreHoriz,
 } from "@mui/icons-material";
 import { DoughnutChart } from "./DoughnoutChart";
-
-
-
 
 
 const DISPLAY_NAMES = {
@@ -28,10 +22,6 @@ const DISPLAY_NAMES = {
   'HINDUNILVR': 'HUL',
   'ITC': 'ITC',
 }
-
-
-
-
 
 const WATCHLIST_SYMBOLS = [
   'RELIANCE',
@@ -49,40 +39,19 @@ const WATCHLIST_SYMBOLS = [
 
 const WatchList = () => {
   const [searchTerm, setSearchTerm] = useState("")
-  const [stockPrices, setStockPrices] = useState({})
-  const [isLoading, setIsLoading] = useState(true)
-  const [lastUpdated, setLastUpdated] = useState("")
+  // Consume centralized stock prices from context (no more self-fetching)
+  const { stockPrices } = useContext(GeneralContext)
 
-  
-  const fetchPrices = async () => {
-    try {
-      const symbols = WATCHLIST_SYMBOLS.join(',')
-      const res = await axios.get(
-        `http://localhost:3005/stockPrices?symbols=${symbols}`
-      )
-      setStockPrices(res.data)
-      setLastUpdated(new Date().toLocaleTimeString())
-      setIsLoading(false)
-    } catch (err) {
-      console.error('Error fetching watchlist prices:', err.message)
-      setIsLoading(false)
-    }
-  }
+  const hasData = Object.keys(stockPrices).length > 0
+  const lastUpdated = hasData ? new Date().toLocaleTimeString() : ""
 
-  useEffect(() => {
-    fetchPrices()
-    
-    const interval = setInterval(fetchPrices, 30000)
-    return () => clearInterval(interval)
-  }, [])
-
-  
+  // Filter symbols based on search
   const filteredSymbols = WATCHLIST_SYMBOLS.filter(symbol =>
     symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (DISPLAY_NAMES[symbol] || '').toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  
+  // Chart data
   const chartData = {
     labels: filteredSymbols.map(s => DISPLAY_NAMES[s] || s),
     datasets: [
@@ -163,7 +132,7 @@ const WatchList = () => {
 
       {}
       <ul className="space-y-1 divide-y divide-gray-100">
-        {isLoading ? (
+        {!hasData ? (
           
           [1, 2, 3, 4, 5].map(i => (
             <li key={i} className="py-3 px-2">
@@ -186,7 +155,7 @@ const WatchList = () => {
       </ul>
 
       {}
-      {filteredSymbols.length > 0 && !isLoading && (
+      {filteredSymbols.length > 0 && hasData && (
         <div className="mt-4">
           <DoughnutChart data={chartData} />
         </div>

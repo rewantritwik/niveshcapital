@@ -14,7 +14,9 @@ const GeneralContext = React.createContext({
   showToast: () => { },
   toastQueue: [],
   dismissToast: () => { },
-  isInitializing: true
+  isInitializing: true,
+  stockPrices: {},
+  fetchAllPrices: () => { },
 });
 
 export const useGeneralContext = () => useContext(GeneralContext);

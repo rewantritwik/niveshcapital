@@ -1,12 +1,22 @@
-import React from "react";
+import React, { useContext } from "react";
 import Menu from "./Menu";
-import useLivePrices from "../hooks/useLivePrices";
+import GeneralContext from "./GeneralContext";
 
 const TopBar = () => {
-  const livePrices = useLivePrices(["^NSEI", "^BSESN"]);
+  // Read index prices from centralized context instead of separate useLivePrices hook
+  const { stockPrices } = useContext(GeneralContext);
   
-  const nifty = livePrices["^NSEI"] || { price: 23456.75, change: 2.45 };
-  const sensex = livePrices["^BSESN"] || { price: 77890.25, change: 2.18 };
+  const niftyData = stockPrices["^NSEI"];
+  const sensexData = stockPrices["^BSESN"];
+
+  const nifty = {
+    price: niftyData?.currentPrice || niftyData?.price || 23456.75,
+    change: niftyData?.changePercent ?? niftyData?.change ?? 2.45,
+  };
+  const sensex = {
+    price: sensexData?.currentPrice || sensexData?.price || 77890.25,
+    change: sensexData?.changePercent ?? sensexData?.change ?? 2.18,
+  };
 
   const isNiftyUp = nifty.change >= 0;
   const isSensexUp = sensex.change >= 0;

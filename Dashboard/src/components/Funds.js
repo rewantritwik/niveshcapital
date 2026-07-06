@@ -64,8 +64,8 @@ const Funds = () => {
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
     Promise.all([
-      axios.get("http://localhost:3005/allFunds", { headers }),
-      axios.get("http://localhost:3005/allHoldings", { headers })
+      axios.get("/allFunds", { headers }),
+      axios.get("/allHoldings", { headers })
     ])
       .then(([fundsRes, holdingsRes]) => {
         setFundsData(fundsRes.data);
@@ -96,7 +96,7 @@ const Funds = () => {
     setActionLoading(true);
     try {
       await axios.post(
-        "http://localhost:3005/updateFunds",
+        "/updateFunds",
         { amount, type: "add" },
         { headers }
       );
@@ -134,7 +134,7 @@ const Funds = () => {
     setActionLoading(true);
     try {
       await axios.post(
-        "http://localhost:3005/updateFunds",
+        "/updateFunds",
         { amount, type: "withdraw" },
         { headers }
       );

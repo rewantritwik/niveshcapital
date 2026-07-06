@@ -431,22 +431,22 @@ export default function AuthModal({ type, onClose, prefillEmail, prefillPassword
                 <div className="mt-2 space-y-1">
                   <div className="flex gap-1">
                     <div className={`h-1 flex-1 rounded-full transition-all ${strength === 'weak' || strength === 'medium' || strength === 'strong'
-                        ? strength === 'weak' ? 'bg-red-500'
-                          : strength === 'medium' ? 'bg-yellow-500'
-                            : 'bg-emerald-500'
-                        : 'bg-gray-700'
+                      ? strength === 'weak' ? 'bg-red-500'
+                        : strength === 'medium' ? 'bg-yellow-500'
+                          : 'bg-emerald-500'
+                      : 'bg-gray-700'
                       }`}></div>
                     <div className={`h-1 flex-1 rounded-full transition-all ${strength === 'medium' || strength === 'strong'
-                        ? strength === 'medium' ? 'bg-yellow-500' : 'bg-emerald-500'
-                        : 'bg-gray-700'
+                      ? strength === 'medium' ? 'bg-yellow-500' : 'bg-emerald-500'
+                      : 'bg-gray-700'
                       }`}></div>
                     <div className={`h-1 flex-1 rounded-full transition-all ${strength === 'strong' ? 'bg-emerald-500' : 'bg-gray-700'
                       }`}></div>
                   </div>
                   {strength && (
                     <p className={`text-xs font-medium ${strength === 'weak' ? 'text-red-400'
-                        : strength === 'medium' ? 'text-yellow-400'
-                          : 'text-emerald-400'
+                      : strength === 'medium' ? 'text-yellow-400'
+                        : 'text-emerald-400'
                       }`}>
                       {strength === 'weak' ? '⚠ Weak password'
                         : strength === 'medium' ? '● Medium strength'

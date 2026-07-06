@@ -14,10 +14,14 @@ const defaultData = [
   { day: "Sun", value: 104200 },
 ];
 
+// Module-level cache — persists across navigations within the same session
+let cachedSummaryData = null;
+
 const Summary = () => {
   const { user, refreshTrigger } = useContext(GeneralContext);
-  const [summaryData, setSummaryData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Initialize with cached data to avoid skeleton flash on re-visits
+  const [summaryData, setSummaryData] = useState(cachedSummaryData);
+  const [isLoading, setIsLoading] = useState(!cachedSummaryData);
   const [chartWidth, setChartWidth] = useState(0);
   const observerRef = useRef(null);
 
@@ -44,13 +48,18 @@ const Summary = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
-    setIsLoading(true);
+
+    // Only show loading skeleton if we have no cached data
+    if (!cachedSummaryData) {
+      setIsLoading(true);
+    }
 
     axios
-      .get(`http://localhost:3005/portfolio/summary`, {
+      .get(`/portfolio/summary`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       .then((res) => {
+        cachedSummaryData = res.data;
         setSummaryData(res.data);
         setIsLoading(false);
       })

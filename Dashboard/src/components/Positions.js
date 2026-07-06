@@ -19,7 +19,7 @@ const Positions = () => {
     setIsError(false);
     const token = localStorage.getItem("token");
 
-    axios.get(`http://localhost:3005/allPositions`, {
+    axios.get(`/allPositions`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {}
     })
       .then((res) => {

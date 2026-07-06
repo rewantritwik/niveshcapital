@@ -51,7 +51,7 @@ router.get('/verify-email', async (req, res) => {
     const jwtToken = createSecretToken(user._id, user.userId)
     
     
-    const dashboardUrl = process.env.DASHBOARD_URL || 'http://localhost:3002'
+    const dashboardUrl = process.env.DASHBOARD_URL || 'https://niveshcapital-dashboard.vercel.app'
     res.redirect(
       `${dashboardUrl}/?token=${jwtToken}&id=${user.userId}&name=${encodeURIComponent(user.username)}&email=${encodeURIComponent(user.email)}`
     )
@@ -86,8 +86,9 @@ router.post('/resend-verification', async (req, res) => {
     user.verificationToken = crypto.randomBytes(32).toString('hex')
     await user.save()
     
+    const clientUrl = process.env.CLIENT_URL || 'https://niveshcapital.vercel.app';
     const verificationLink = 
-      `${process.env.CLIENT_URL}/verify-email?token=${user.verificationToken}`
+      `${clientUrl}/verify-email?token=${user.verificationToken}`
     
     await sendEmail(
       email,

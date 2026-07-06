@@ -46,7 +46,8 @@ const Menu = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     localStorage.removeItem("funds");
-    window.location.href = "http://localhost:3001";
+    const LANDING_URL = process.env.REACT_APP_LANDING_URL || 'https://niveshcapital.vercel.app';
+    window.location.href = LANDING_URL;
   };
 
   const getInitials = (name) => {

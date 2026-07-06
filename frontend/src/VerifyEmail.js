@@ -19,7 +19,7 @@ const VerifyEmail = () => {
     }
 
     
-    axios.get(`http://localhost:3005/verify-email?token=${token}`)
+    axios.get(`/verify-email?token=${token}`)
       .then(res => {
         
         
@@ -43,7 +43,7 @@ const VerifyEmail = () => {
     setResendLoading(true)
     try {
       const res = await axios.post(
-        'http://localhost:3005/resend-verification',
+        '/resend-verification',
         { email }
       )
       setResendMsg(res.data.message)
@@ -166,7 +166,7 @@ const VerifyEmail = () => {
             )}
 
             <a
-              href="http://localhost:3001"
+              href={window.location.origin}
               style={{
                 display: 'block',
                 color: '#6b7280',

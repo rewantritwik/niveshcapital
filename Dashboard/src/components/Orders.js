@@ -22,7 +22,7 @@ const Orders = () => {
 
     axios
       .get(
-        `http://localhost:3005/allOrders?page=${pageNum}&limit=50`, {
+        `/allOrders?page=${pageNum}&limit=50`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {}
         }
       )

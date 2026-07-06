@@ -33,7 +33,7 @@ const BuyActionWindow = ({ uid, mode = "BUY" }) => {
     setErrorMsg("");
 
     axios
-      .get(`http://localhost:3005/stockPrice/${uid}`)
+      .get(`/stockPrice/${uid}`)
       .then((res) => {
         if (res.data && res.data.currentPrice) {
           setStockPrice(res.data.currentPrice);
@@ -58,7 +58,7 @@ const BuyActionWindow = ({ uid, mode = "BUY" }) => {
     if (!token) return;
 
     axios
-      .get(`http://localhost:3005/allHoldings`, {
+      .get(`/allHoldings`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => {
@@ -106,7 +106,7 @@ const BuyActionWindow = ({ uid, mode = "BUY" }) => {
 
     try {
       const res = await axios.post(
-        "http://localhost:3005/newOrder",
+        "/newOrder",
         {
           name: uid,
           qty: stockQuantity,

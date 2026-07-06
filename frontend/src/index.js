@@ -11,7 +11,6 @@ import AuthModal from "./premium_landing/landing_page/components/AuthModal";
 import VerifyEmail from "./VerifyEmail";
 import TickerBar from "./premium_landing/landing_page/components/TickerBar";
 
-// Production URLs — hardcoded as fallback so they always work
 axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://niveshcapital-backend.onrender.com';
 const DASHBOARD_URL = process.env.REACT_APP_DASHBOARD_URL || 'https://niveshcapital-dashboard.vercel.app';
 
@@ -23,7 +22,7 @@ function Home() {
 
   useEffect(() => {
     document.title = 'NiveshCapital - Invest Smarter';
-    // Keep Render backend alive — ping every 10 minutes
+
     const keepAlive = () => {
       fetch('https://niveshcapital-backend.onrender.com/')
         .catch(() => { })

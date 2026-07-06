@@ -204,7 +204,7 @@ module.exports.ForgotPassword = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; 
     await user.save();
 
-    const clientUrl = process.env.CLIENT_URL || "http://localhost:3001";
+    const clientUrl = process.env.CLIENT_URL || "https://niveshcapital.vercel.app";
     const resetLink = `${clientUrl}/reset-password?token=${resetToken}`;
 
     const htmlContent = `

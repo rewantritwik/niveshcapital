@@ -22,7 +22,7 @@ const Holdings = () => {
     const token = localStorage.getItem("token");
 
     axios
-      .get(`http://localhost:3005/allHoldings`, {
+      .get(`/allHoldings`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       })
       .then((res) => {

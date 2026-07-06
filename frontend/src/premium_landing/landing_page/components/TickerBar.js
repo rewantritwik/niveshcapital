@@ -7,7 +7,7 @@ const TickerBar = () => {
   useEffect(() => {
     const fetchStocks = async () => {
       try {
-        const res = await axios.get('http://localhost:3005/allStocks')
+        const res = await axios.get('/allStocks')
         
         const seen = new Set()
         const unique = res.data.filter(stock => {
